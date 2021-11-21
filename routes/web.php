@@ -37,6 +37,8 @@ Route::get('/enderecos', function () {
 
     foreach($ends as $e) {
         echo "<p> Id: ".$e->cliente_id."</p>";
+        echo "<p> Nome do cliente: ".$e->cliente->name."</p>";
+        echo "<p> Telefone do cliente: ".$e->cliente->telefone."</p>";
         echo "<p> Rua: ".$e->rua."</p>";
         echo "<p> Número: ".$e->numero."</p>";
         echo "<p> Bairro: ".$e->bairro."</p>";
@@ -45,4 +47,44 @@ Route::get('/enderecos', function () {
         echo "<p> CEP: ".$e->cep."</p>";
         echo "<hr>";
     }
+});
+
+Route::get('/inserir', function() {
+    $c = new Cliente;
+    $c->name = "Manuela Pedrosa";
+    $c->telefone = 2197874589;
+    $c->save();
+
+    $e = new Endereco;
+    $e->rua = "Rua Itaigara";
+    $e->numero = 221;
+    $e->cidade = "Rio de Janeiro";
+    $e->bairro = "Coelho Neto";
+    $e->uf = "RJ";
+    $e->cep = "";
+
+    // $e->cliente_id = $c->id;
+    $e->endereco()->save($e);
+
+});
+
+// Para hasOne
+Route::get('/clientes/json', function() {
+
+    // Lazy Loading - Carregamento preguiçoso. Não vem o relacionamento endereço.
+    // $clientes = Cliente::all();
+
+    // Eager Loading -Carregamento antecipado. Esse vem o relacionamento endereço.
+    $clientes = Cliente::with(['endereco'])->get();
+
+    return $clientes->toJson();
+});
+
+// Para belongTo
+Route::get('/enderecos/json', function() {
+
+    // $enderecos = Endereco::all();
+    $enderecos = Endereco::with(['cliente'])->get();
+
+    return $enderecos->toJson();
 });
